@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # from flask import Flask, request
 # import requests # pypi.org/project/requests - making HTTP requests
-# import sys
+import sys
 import socket # socket to make connection between nodes of a network
 
 # app = Flask(__name__)
 
-# SSDP_RECEIVE_TIMEOUT = 10000 # msec
-# PACKET_BUFFER_SIZE = 1024
+SSDP_RECEIVE_TIMEOUT = 10000 # msec
+PACKET_BUFFER_SIZE = 1024
 
 SSDP_PORT = 1900
 SSDP_MX = 1
@@ -43,7 +43,7 @@ def discover_camera(): # M-SEARCH (multicast search) request, MX (max wait time 
             print('DECODED DATA:\n', response)
             if 'LOCATION' in response:
                 location_url = response.strip().split(' ')[1]
-                print(location_url)
+                print(location_url)   
     except socket.timeout:
         pass
 
