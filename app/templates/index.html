@@ -1,5 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live View</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <img id="liveView" src="" alt="Live View" width="800">
+    
+    <script>
+        function startLiveView() {
+            var liveViewElement = document.getElementById('liveView');
+            var source = new EventSource("/");
+
+            source.addEventListener('message', function(event) {
+                liveViewElement.src = "data:image/jpeg;base64," + event.data;
+            });
+
+            source.addEventListener('error', function(event) {
+                console.error("Error occurred:", event);
+                source.close();
+            });
+        }
+
+        startLiveView();
+    </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live View</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <img id="liveView" src="" alt="Live View" width="800">
+    
+    <script>
+        // JavaScript to update the live view
+        function updateLiveView() {
+            var liveViewElement = document.getElementById('liveView');
+            var source = new EventSource("/stream");
+            
+            source.addEventListener('message', function(event) {
+                liveViewElement.src = "data:image/jpeg;base64," + event.data;
+            });
+
+            source.addEventListener('error', function(event) {
+                console.error("Error occurred:", event);
+                source.close();
+            });
+        }
+
+        updateLiveView();
+    </script>
+</body>
+</html> -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,4 +73,4 @@
     <body>
         <iframe src="{{ liveview_url }}" width="800" alt="Live View"></iframe>
     </body>
-</html>
+</html> -->

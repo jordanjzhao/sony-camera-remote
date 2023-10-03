@@ -1,60 +1,16 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 import sys
 import socket
 import requests
 import xml.etree.ElementTree as ET # parsing XML
 import json
 from sony_api import CameraAPI
-# pip install opencv-python-headless - cv2 - to capture frams from live view and use JavaScript to update the 'src'attribute of img with live view URL
 import cv2
 import urllib.request
 import numpy as np
 
-# class CameraAPI:
-#     def __init__(self, base_url):
-#         self.base_url = base_url
-
-#     def _make_request(self, method, params):
-#         url = f"{self.base_url}/camera"
-#         payload = {
-#             "method": method,
-#             "params": params,
-#             "id": 1,
-#             "version": "1.0"
-#         }
-#         headers = {
-#             "Content-Type": "application/json"
-#         }
-#         response = requests.post(url, data=json.dumps(payload), headers=headers)
-#         return response
-
-#     def execute_command(self, command, params):
-#         response = self._make_request(command, params)
-#         if response.status_code == 200:
-#             response_data = response.json()
-#             return response_data.get('result', None)
-#         return None
-
-#     def start_liveview(self):
-#         response = self._make_request("startLiveview", [])
-#         if response.status_code == 200:
-#             response_data = response.json()
-#             return response_data.get('result', None)
-#         return None
-
-#     def stop_liveview(self):
-#         response = self._make_request("stopLiveview", [])
-#         if response.status_code == 200:
-#             response_data = response.json()
-#             return response_data.get('result', None)
-#         return None
-
 app = Flask(__name__)
-
-# Add a global variable to store the live view URL
-# liveview_url = None
-# camera_api = None
 
 # Make SSDP dsicovery request on a UDP socket connection
 def discover_camera(): # M-SEARCH (multicast search) request, MX (max wait time for res), ST (search target)
@@ -132,24 +88,68 @@ def describe_camera(url):
         return print('Unable to retrieve device description.')
 
 def fetch_liveview_data(url):
-    response = requests.get(url, stream=True)
-    if response.status_code == 200:
-        return response.iter_content(chunk_size=1024)
-    return None        
-
-def process_packet(packet):
-    # decode JPEG data
     try:
-        if packet is not None and len(packet) > 0:
-            np_arr = np.frombuffer(packet, np.uint8)
-            image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-            if image is not None:
-                if image.shape[0] > 0 and image.shape[1] > 0:
-                    cv2.imshow('Live View', image)
-                    cv2.waitKey(1)
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            bytes = b''
+            for chunk in response.iter_content(chunk_size=1024):
+                bytes += chunk
+                startFrame = bytes.find(b'\xff\xd8')
+                endFrame = bytes.find(b'\xff\xd9')
+                if startFrame != -1 and endFrame != -1: #both start and end found - complete jpeg received
+                    jpg = bytes[startFrame:endFrame+2]
+                    bytes = bytes[endFrame+2:]
+                    # decodes the JPEG frame (jpg) into an image using OpenCV 
+                    # convert the JPEG bytes into a NumPy array of unsigned 8-bit integer
+                    # reads this array as an image, specify image loaded in color mode
+                    im = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    if im is not None: # decode successful
+                        # encode back to jpeg format, res (boolean) jpeg (image)
+                        res, jpeg = cv2.imencode('.jpg', im)
+                        if res: #encoding succesful
+                            frame = jpeg.tobytes() # convert
+                            # yields the bytes of the JPEG frame as part of a multipart response. This is suitable for streaming video over HTTP
+                            yield (b'--frame\r\n'
+                                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+                else:
+                    bytes = bytes[endFrame+2:] # skip jpeg image frames 
+            # cv2.imdecode is used to decode the JPEG bytes into an image. This is necessary because the raw JPEG bytes need to be interpreted and converted into a format that can be displayed or further processed by OpenCV.
+            # The reason for re-encoding the image back to JPEG format with cv2.imencode is to ensure that the image is in a consistent format before it is sent as a response. This is important if the original format of the incoming stream is not guaranteed to be JPEG. Encoding it back to JPEG ensures that it is sent as a standard image format.
+            # Essentially, this step ensures that the image is in a standardized format (JPEG) before being streamed or further processed.
+        else:
+            print(f"Failed to retrieve live view data. Status code: {response.status_code}")
     except Exception as e:
         print(f"An error occurred: {e}")
-    
+   
+
+
+def generate(url):
+    response = requests.get(url, stream=True)
+    bytes = b''
+    for chunk in response.iter_content(chunk_size=1024):
+        bytes += chunk
+        startFrame = bytes.find(b'\xff\xd8')
+        endFrame = bytes.find(b'\xff\xd9')
+        if startFrame != -1 and endFrame != -1: #both start and end found - complete jpeg received
+            jpg = bytes[startFrame:endFrame+2]
+            bytes = bytes[endFrame+2:]
+            # decodes the JPEG frame (jpg) into an image using OpenCV 
+            # convert the JPEG bytes into a NumPy array of unsigned 8-bit integer
+            # reads this array as an image, specify image loaded in color mode
+            im = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+            if im is not None: # decode successful
+                # encode back to jpeg format, res (boolean) jpeg (image)
+                res, jpeg = cv2.imencode('.jpg', im)
+                if res: #encoding succesful
+                    frame = jpeg.tobytes() # convert
+                    # yields the bytes of the JPEG frame as part of a multipart response. This is suitable for streaming video over HTTP
+                    yield (b'--frame\r\n'
+                            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        else:
+            bytes = bytes[endFrame+2:] # skip jpeg image frames 
+    # cv2.imdecode is used to decode the JPEG bytes into an image. This is necessary because the raw JPEG bytes need to be interpreted and converted into a format that can be displayed or further processed by OpenCV.
+    # The reason for re-encoding the image back to JPEG format with cv2.imencode is to ensure that the image is in a consistent format before it is sent as a response. This is important if the original format of the incoming stream is not guaranteed to be JPEG. Encoding it back to JPEG ensures that it is sent as a standard image format.
+    # Essentially, this step ensures that the image is in a standardized format (JPEG) before being streamed or further processed.
 
 
 @app.route('/')
@@ -165,30 +165,12 @@ def index():
             if result_rec_mode is not None and result_rec_mode[0] == 0:
                 print("Started recording mode successfully.")
                 result = camera_api.start_liveview()
+                print('Result from startliveview():', result)
                 if result is not None:
                     liveview_url = result[0]
-                    print("LIVE VIEW URL:", liveview_url)
-                    # OpenCV processing loop
-                    data_stream = fetch_liveview_data(liveview_url)
-                    if data_stream is not None:
-                        for packet in data_stream:
-                            process_packet(packet)
-
-                    cv2.destroyAllWindows()
-                    return "Live view closed."
-                    # return render_template('index.html', liveview_url=liveview_url)
-                    # cap = cv2.VideoCapture(liveview_url)
-                    # ret, frame = cap.read()
-                    # cap.realease()
-                    # if ret:
-                    #     cv2.imwrite('captured_image.jpg', frame)
+                    return Response(fetch_liveview_data(liveview_url), mimetype='multipart/x-mixed-replace; boundary=frame')
                 else:
                     return "Failed to start live view."
-
-            # if camera_api.start_rec_mode() and camera_api.start_liveview():
-            #     return render_template('index.html', liveview_url=liveview_url)
-            # else:
-            #     return "Failed to start recording mode or liveview."
         else:
             return print('Location URL not found.')
     else:
