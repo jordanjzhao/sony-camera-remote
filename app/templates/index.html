@@ -8,6 +8,17 @@
 </head>
 <body>
     <img id="liveView" src="" alt="Live View" width="800">
+
+    <form id="shootModeForm">
+        <select id="shootMode" name="shoot_mode">
+            <option value="still">Still</option>
+            <option value="movie">Movie</option>
+            <option value="audio">Audio</option>
+            <option value="intervalstill">Interval Still</option>
+            <option value="looprec">Loop Recording</option>
+        </select>
+        <button type="submit">Set Shoot Mode</button>
+    </form>
     
     <script>
         function startLiveView() {
@@ -25,6 +36,22 @@
         }
 
         startLiveView();
+
+        document.getElementById('shootModeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var selectedMode = document.getElementById('shootMode').value;
+            fetch('/set_shoot_mode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({shoot_mode: selectedMode})
+            })
+            .then(response => response.text())
+            .then(data => alert(data))
+            .catch(error => console.error('Error:', error));
+        });
     </script>
 </body>
 </html>
