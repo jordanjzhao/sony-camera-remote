@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 import sys
 import socket
 import requests
@@ -7,8 +7,8 @@ import xml.etree.ElementTree as ET # parsing XML
 import json
 from sony_api import CameraAPI
 import cv2
-import urllib.request
 import numpy as np
+
 
 app = Flask(__name__)
 
@@ -122,38 +122,9 @@ def fetch_liveview_data(url):
         print(f"An error occurred: {e}")
    
 
-
-def generate(url):
-    response = requests.get(url, stream=True)
-    bytes = b''
-    for chunk in response.iter_content(chunk_size=1024):
-        bytes += chunk
-        startFrame = bytes.find(b'\xff\xd8')
-        endFrame = bytes.find(b'\xff\xd9')
-        if startFrame != -1 and endFrame != -1: #both start and end found - complete jpeg received
-            jpg = bytes[startFrame:endFrame+2]
-            bytes = bytes[endFrame+2:]
-            # decodes the JPEG frame (jpg) into an image using OpenCV 
-            # convert the JPEG bytes into a NumPy array of unsigned 8-bit integer
-            # reads this array as an image, specify image loaded in color mode
-            im = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-            if im is not None: # decode successful
-                # encode back to jpeg format, res (boolean) jpeg (image)
-                res, jpeg = cv2.imencode('.jpg', im)
-                if res: #encoding succesful
-                    frame = jpeg.tobytes() # convert
-                    # yields the bytes of the JPEG frame as part of a multipart response. This is suitable for streaming video over HTTP
-                    yield (b'--frame\r\n'
-                            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-        else:
-            bytes = bytes[endFrame+2:] # skip jpeg image frames 
-    # cv2.imdecode is used to decode the JPEG bytes into an image. This is necessary because the raw JPEG bytes need to be interpreted and converted into a format that can be displayed or further processed by OpenCV.
-    # The reason for re-encoding the image back to JPEG format with cv2.imencode is to ensure that the image is in a consistent format before it is sent as a response. This is important if the original format of the incoming stream is not guaranteed to be JPEG. Encoding it back to JPEG ensures that it is sent as a standard image format.
-    # Essentially, this step ensures that the image is in a standardized format (JPEG) before being streamed or further processed.
-
-
 @app.route('/')
 def index():
+    global camera_api
     response = discover_camera()
     if response:
         location_url = handle_discovery_response(response)
@@ -161,10 +132,10 @@ def index():
             endpoint_url = describe_camera(location_url)
             camera_api = CameraAPI(endpoint_url)
 
-            result_rec_mode = camera_api.start_rec_mode()
+            result_rec_mode = camera_api.startRecMode()
             if result_rec_mode is not None and result_rec_mode[0] == 0:
                 print("Started recording mode successfully.")
-                result = camera_api.start_liveview()
+                result = camera_api.startLiveview()
                 print('Result from startliveview():', result)
                 if result is not None:
                     liveview_url = result[0]
@@ -176,100 +147,12 @@ def index():
     else:
         return print('Device not found.')
     
-# @app.route('/start_liveview', methods=['POST'])
-# def start_liveview_route():
-#     if camera_api.start_liveview():
-#         return f"Liveview started. URL: {liveview_url}"
-#     else:
-#         return "Failed to start liveview"
+@app.route('/set_shoot_mode', methods=['POST'])
+def set_shoot_mode():
+    selected_mode = request.args.get('shoot_mode')
+    camera_api.setShootMode(selected_mode)
+    return f'Shoot mode set to {selected_mode}'
 
-# @app.route('/stop_liveview', methods=['POST'])
-# def stop_liveview_route():
-#     if camera_api.stop_liveview():
-#         return "Liveview stopped successfully"
-#     else:
-#         return "Failed to stop liveview"
-
-# @app.route('/capture_picture', methods=['POST'])
-# def capture_picture():
-#     global liveview_url
-
-#     if liveview_url is not None:
-#         cap = cv2.VideoCapture(liveview_url)
-#         ret, frame = cap.read()
-#         cap.release()
-
-#         if ret:
-#             cv2.imwrite('captured_image.jpg', frame)
-#             return "Image captured successfully."
-#         else:
-#             return "Failed to capture image."
-#     else:
-#         return "Live view not available."
-
-# @app.route('/')
-# def index():
-#     response = discover_camera()
-#     if response:
-#         location_url = handle_discovery_response(response)
-#         if location_url:
-#             endpoint_url = describe_camera(location_url)
-#             #intantiate
-#             camera_api = CameraAPI(endpoint_url)
-#             # Start liveview
-#             result = camera_api.start_liveview()
-#             if result is not None:
-#                 liveview_url = result[0]
-#                 print("LIVE VIEW URL:", liveview_url)
-#                 print("Liveview started successfully.")
-#                 return render_template('index.html', liveview_url=liveview_url)
-#             else:
-#                 return "Failed to start liveview."
-#         else:
-#             return print('Location URL not found.')
-#     else:
-#         return print('Device not found.')
-    
-# @app.route('/start_liveview', methods=['POST'])
-# def start_liveview():
-#     global liveview_url, camera_api
-#     result = camera_api.start_liveview()
-
-#     if result is not None:
-#         liveview_url = result[0]
-#         return f"Liveview started. URL: {liveview_url}"
-#     else:
-#         return "Failed to start liveview"
-
-# @app.route('/stop_liveview', methods=['POST'])
-# def stop_liveview():
-#     global liveview_url, camera_api
-#     result = camera_api.stop_liveview()
-
-#     if result is not None and result[0] == 0:
-#         liveview_url = None
-#         return "Liveview stopped successfully"
-#     else:
-#         return "Failed to stop liveview"
-
-# @app.route('/display_liveview')
-# def display_liveview():
-#     global liveview_url
-
-#     if liveview_url is not None:
-#         cap = cv2.VideoCapture(liveview_url)
-#         while True:
-#             ret, frame = cap.read()
-#             if not ret:
-#                 break
-#             cv2.imshow('Live View', frame)
-#             if cv2.waitKey(1) & 0xFF == ord('q'):
-#                 break
-#         cap.release()
-#         cv2.destroyAllWindows()
-#         return "Live view closed."
-#     else:
-#         return "Live view not available."
 
 if __name__ == '__main__':
     app.run(debug=True)
