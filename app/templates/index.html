@@ -11,6 +11,19 @@
         <div id="video-container">
             <img id="liveView" src="/video_feed" alt="Live View" width="800">
         </div>  
+        <div>
+            <text>F Number:</text>
+            <input 
+                type="range" 
+                min="{{ available_f_numbers[1][0] if available_f_numbers[1] else 0 }}" 
+                max="{{ available_f_numbers[1][-1] if available_f_numbers[1] else 30 }}" 
+                value="{{ available_f_numbers[0] if available_f_numbers[0] else 5 }}" 
+                step="0.1" 
+                class="slider" 
+                id="fNumberSlider" 
+                oninput="setFNumber(this.value)"
+            >
+        </div>
         <div class="controls">
             <select id="shootMode" name="shoot_mode">
                 <option value="still">Still</option>
@@ -56,11 +69,25 @@
             .then(data => alert(data.message))
             .catch(error => console.error('Error:', error));
         }
-        // Function to start Live View
-         // Start Live View when the page loads
-    
-
-        
+   
+        function setFNumber(value) {
+        // Make a request to set the F number
+            fetch('/update_f_number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ f_number: value })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('F Number updated successfully');
+                } else {
+                    console.error('Error updating F Number:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }          
 
     </script>
 </body>

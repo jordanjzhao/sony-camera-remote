@@ -431,7 +431,6 @@ class CameraAPI:
         response = self._make_request('getAvailableFNumber', [], '1.0')
         if response.status_code == 200:
             response_data = response.json()
-            print('Response data:', response_data)
             return response_data.get('result', None)
         return None
 

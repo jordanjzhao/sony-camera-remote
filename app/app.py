@@ -127,12 +127,16 @@ def fetch_liveview_data(url):
 
 def initCamera():
     global camera_api
+    global available_f_numbers
     response = discover_camera()
     if response:
         location_url = handle_discovery_response(response)
         if location_url:
             endpoint_url = describe_camera(location_url)
             camera_api = CameraAPI(endpoint_url)
+            camera_api.startRecMode()
+            available_apis = camera_api.getAvailableApiList()
+            print('CAMERA APIS:', available_apis)
         else:
             return print('Location URL not found.')
     else:
@@ -141,8 +145,33 @@ def initCamera():
 
 @app.route('/')
 def index():
-    initCamera()
-    return render_template('index.html')
+    # initCamera()
+    # available_f_numbers = camera_api.getAvailableFNumber()  
+    # Create a dictionary to hold all the variables
+    # template_data = {
+    #     'available_f_numbers': available_f_numbers,
+    #     'other_variable': 'some_value',
+    #     # Add more variables as needed
+    # }
+    global camera_api
+    global available_f_numbers
+    response = discover_camera()
+    if response:
+        location_url = handle_discovery_response(response)
+        if location_url:
+            endpoint_url = describe_camera(location_url)
+            camera_api = CameraAPI(endpoint_url)
+            available_f_numbers = camera_api.getAvailableFNumber()
+            print('F NUMBER RESPONSE:', available_f_numbers)
+        else:
+            print('Location URL not found.')
+    else:
+        print('Device not found.')
+
+    return render_template('index.html', available_f_numbers=available_f_numbers)
+    # return render_template('index.html', available_f_numbers=available_f_numbers)
+
+    # return render_template('index.html')
 
     # # initCamera()
     # available_f_numbers = camera_api.getAvailableFNumber()  
@@ -173,36 +202,18 @@ def video_feed():
     # else:
     #     return print('Device not found.')
 
-@app.route('/getFNumber')
-def getFNumber():
-    if camera_api:
-        available_f_numbers = camera_api.getAvailableFNumber()  
-        if available_f_numbers is not None:
-            return jsonify({'available_f_numbers': available_f_numbers})
-        else:
-            return jsonify({'error': 'Failed to retrieve available F numbers.'})
-    else:
-        return jsonify({'error': 'Failed to initialize camera API.'})
-    
-# @app.route('/get_available_f_numbers')
-# def get_available_f_numbers():
-#     available_f_numbers = camera_api.getAvailableFNumber()  # Implement this function
-#     # print('Curr F number:', available_f_numbers[0])
-#     # print('F number range:', available_f_numbers[1])
-#     return jsonify(available_f_numbers)
-# @app.route('/live_view_feed')
-# def live_view_feed():
-#     response = Response(fetch_liveview_data(liveview_url), mimetype='text/event-stream')
-#     response.headers.add('Cache-Control', 'no-cache')
-#     return response
+@app.route('/update_f_number', methods=['POST'])
+def update_f_number():
+    f_number = request.json.get('f_number')
 
-# @app.route('/live_view_on', methods=['POST'])
-# def live_view_on():
-#     result = camera_api.startLiveview()
-#     if result:
-#         return 'Live View turned on successfully.'
-#     else:
-#         return 'Failed to turn on Live View.'
+    # Call the API function to set the F Number
+    response = camera_api.setFNumber(f_number)
+
+    if response is not None and response[0] == 0:
+        return jsonify({'message': 'F Number updated successfully'}), 200
+    else:
+        return jsonify({'error': 'Failed to update F Number'}), 500
+
 
 
 
