@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, jsonify
 import sys
 import socket
 import requests
@@ -8,9 +8,13 @@ import json
 from sony_api import CameraAPI
 import cv2
 import numpy as np
+import asyncio
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
+
+camera_api = None
+
 
 # Make SSDP dsicovery request on a UDP socket connection
 def discover_camera(): # M-SEARCH (multicast search) request, MX (max wait time for res), ST (search target)
@@ -120,10 +124,8 @@ def fetch_liveview_data(url):
             print(f"Failed to retrieve live view data. Status code: {response.status_code}")
     except Exception as e:
         print(f"An error occurred: {e}")
-   
 
-@app.route('/')
-def index():
+def initCamera():
     global camera_api
     response = discover_camera()
     if response:
@@ -131,27 +133,174 @@ def index():
         if location_url:
             endpoint_url = describe_camera(location_url)
             camera_api = CameraAPI(endpoint_url)
-
-            result_rec_mode = camera_api.startRecMode()
-            if result_rec_mode is not None and result_rec_mode[0] == 0:
-                print("Started recording mode successfully.")
-                result = camera_api.startLiveview()
-                print('Result from startliveview():', result)
-                if result is not None:
-                    liveview_url = result[0]
-                    return Response(fetch_liveview_data(liveview_url), mimetype='multipart/x-mixed-replace; boundary=frame')
-                else:
-                    return "Failed to start live view."
         else:
             return print('Location URL not found.')
     else:
         return print('Device not found.')
+   
+
+@app.route('/')
+def index():
+    initCamera()
+    return render_template('index.html')
+
+    # # initCamera()
+    # available_f_numbers = camera_api.getAvailableFNumber()  
+    # print('Curr F number:', available_f_numbers[0])
+    # print('F number range:', available_f_numbers[1])
+    # return render_template('index.html', available_f_numbers=available_f_numbers)
+
+@app.route('/video_feed')
+def video_feed():
+    # response = discover_camera()
+    # if response:
+    #     location_url = handle_discovery_response(response)
+    #     if location_url:
+    #         endpoint_url = describe_camera(location_url)
+    #         camera_api = CameraAPI(endpoint_url)
+    result_rec_mode = camera_api.startRecMode()
+    if result_rec_mode is not None and result_rec_mode[0] == 0:
+        print("Started recording mode successfully.")
+        result = camera_api.startLiveview()
+        print('Result from startliveview():', result)
+        if result is not None:
+            liveview_url = result[0]
+            return Response(fetch_liveview_data(liveview_url), mimetype='multipart/x-mixed-replace; boundary=frame')
+        else:
+            return "Failed to start live view."
+    #     else:
+    #         return print('Location URL not found.')
+    # else:
+    #     return print('Device not found.')
+
+@app.route('/getFNumber')
+def getFNumber():
+    if camera_api:
+        available_f_numbers = camera_api.getAvailableFNumber()  
+        if available_f_numbers is not None:
+            return jsonify({'available_f_numbers': available_f_numbers})
+        else:
+            return jsonify({'error': 'Failed to retrieve available F numbers.'})
+    else:
+        return jsonify({'error': 'Failed to initialize camera API.'})
+    
+# @app.route('/get_available_f_numbers')
+# def get_available_f_numbers():
+#     available_f_numbers = camera_api.getAvailableFNumber()  # Implement this function
+#     # print('Curr F number:', available_f_numbers[0])
+#     # print('F number range:', available_f_numbers[1])
+#     return jsonify(available_f_numbers)
+# @app.route('/live_view_feed')
+# def live_view_feed():
+#     response = Response(fetch_liveview_data(liveview_url), mimetype='text/event-stream')
+#     response.headers.add('Cache-Control', 'no-cache')
+#     return response
+
+# @app.route('/live_view_on', methods=['POST'])
+# def live_view_on():
+#     result = camera_api.startLiveview()
+#     if result:
+#         return 'Live View turned on successfully.'
+#     else:
+#         return 'Failed to turn on Live View.'
+
+
+
+
+# @app.route('/live_view')
+# def live_view():
+#     global camera_api
+#     response = discover_camera()
+#     if response:
+#         location_url = handle_discovery_response(response)
+#         if location_url:
+#             endpoint_url = describe_camera(location_url)
+#             camera_api = CameraAPI(endpoint_url)
+
+#             result_rec_mode = camera_api.startRecMode()
+#             if result_rec_mode is not None and result_rec_mode[0] == 0:
+#                 print("Started recording mode successfully.")
+#                 result = camera_api.startLiveview()
+#                 print('Result from startliveview():', result)
+#                 if result is not None:
+#                     liveview_url = result[0]
+#                     return Response(fetch_liveview_data(liveview_url), mimetype='text/event-stream')
+#                 else:
+#                     return "Failed to start live view."
+#         else:
+#             return print('Location URL not found.')
+#     else:
+#         return print('Device not found.')
     
 @app.route('/set_shoot_mode', methods=['POST'])
 def set_shoot_mode():
     selected_mode = request.args.get('shoot_mode')
     camera_api.setShootMode(selected_mode)
     return f'Shoot mode set to {selected_mode}'
+
+@app.route('/camera_function', methods=['POST'])
+def camera_function():
+    data = request.get_json()
+    method = data.get('method')
+    result = camera_api.callCameraFunction(method)
+    return f'Camera function {method} executed successfully.'
+
+@app.route('/postview_image_size', methods=['POST'])
+def postview_image_size():
+    size = request.get_json().get('size')
+    camera_api.setPostviewImageSize(size)
+    return f'Postview image size set to {size}.'
+
+@app.route('/flash_mode', methods=['POST'])
+def flash_mode():
+    mode = request.get_json().get('mode')
+    camera_api.setFlashMode(mode)
+    return f'Flash mode set to {mode}.'
+
+@app.route('/focus_mode', methods=['POST'])
+def focus_mode():
+    mode = request.get_json().get('mode')
+    camera_api.setFocusMode(mode)
+    return f'Focus mode set to {mode}.'
+
+@app.route('/iso_speed_rate', methods=['POST'])
+def iso_speed_rate():
+    speed = request.get_json().get('speed')
+    camera_api.setIsoSpeedRate(speed)
+    return f'ISO speed rate set to {speed}.'
+
+@app.route('/shutter_speed', methods=['POST'])
+def shutter_speed():
+    speed = request.get_json().get('speed')
+    camera_api.setShutterSpeed(speed)
+    return f'Shutter speed set to {speed}.'
+
+@app.route('/f_number', methods=['POST'])
+def f_number():
+    number = request.get_json().get('number')
+    camera_api.setFNumber(number)
+    return f'F number set to {number}.'
+
+@app.route('/self_timer', methods=['POST'])
+def self_timer():
+    timer = request.get_json().get('timer')
+    camera_api.setSelfTimer(timer)
+    return f'Self timer set to {timer}.'
+
+@app.route('/capture', methods=['POST'])
+def capture():
+    result = camera_api.actTakePicture()
+    return 'Captured successfully.'
+
+@app.route('/live_view_on', methods=['POST'])
+def live_view_on():
+    result = camera_api.startLiveview()
+    return 'Live View turned on successfully.'
+
+@app.route('/live_view_off', methods=['POST'])
+def live_view_off():
+    result = camera_api.stopLiveview()
+    return 'Live View turned off successfully.'
 
 
 if __name__ == '__main__':

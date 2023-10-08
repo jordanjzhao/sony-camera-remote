@@ -7,97 +7,61 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <img id="liveView" src="" alt="Live View" width="800">
+    <div class="container">
+        <div id="video-container">
+            <img id="liveView" src="/video_feed" alt="Live View" width="800">
+        </div>  
+        <div class="controls">
+            <select id="shootMode" name="shoot_mode">
+                <option value="still">Still</option>
+                <option value="movie">Movie</option>
+                <option value="audio">Audio</option>
+                <option value="intervalstill">Interval Still</option>
+                <option value="looprec">Loop Recording</option>
+            </select>
+            <button type="submit" onclick="setShootMode()">Set Shoot Mode</button>
 
-    <form id="shootModeForm">
-        <select id="shootMode" name="shoot_mode">
-            <option value="still">Still</option>
-            <option value="movie">Movie</option>
-            <option value="audio">Audio</option>
-            <option value="intervalstill">Interval Still</option>
-            <option value="looprec">Loop Recording</option>
-        </select>
-        <button type="submit">Set Shoot Mode</button>
-    </form>
-    
+            <button onclick="sendCameraFunction('startRecMode')">Start Rec Mode</button>
+            <button onclick="sendCameraFunction('stopRecMode')">Stop Rec Mode</button>
+            <button onclick="sendPostviewImageSize('large')">Set Postview Image Size</button>
+            <button onclick="sendPostviewImageSize('small')">Set Postview Image Size (Small)</button>
+            <button onclick="sendFlashMode('auto')">Set Flash Mode (Auto)</button>
+            <button onclick="sendFlashMode('off')">Set Flash Mode (Off)</button>
+            <button onclick="sendFocusMode('auto')">Set Focus Mode (Auto)</button>
+            <button onclick="sendFocusMode('manual')">Set Focus Mode (Manual)</button>
+            <button onclick="sendIsoSpeedRate(800)">Set ISO Speed Rate (800)</button>
+            <button onclick="sendIsoSpeedRate(1600)">Set ISO Speed Rate (1600)</button>
+            <button onclick="sendShutterSpeed('1/60')">Set Shutter Speed (1/60)</button>
+            <button onclick="sendShutterSpeed('1/125')">Set Shutter Speed (1/125)</button>
+            <button onclick="sendFNumber('5.6')">Set F Number (5.6)</button>
+            <button onclick="sendFNumber('8')">Set F Number (8)</button>
+            <button onclick="sendSelfTimer('2s')">Set Self Timer (2s)</button>
+            <button onclick="sendSelfTimer('5s')">Set Self Timer (5s)</button>
+            <button onclick="capture()">Capture</button>
+            <button onclick="liveViewOn()">Live View On</button>
+            <button onclick="liveViewOff()">Live View Off</button>
+        </div>
+    </div>
+
     <script>
-        function startLiveView() {
-            var liveViewElement = document.getElementById('liveView');
-            var source = new EventSource("/");
-
-            source.addEventListener('message', function(event) {
-                liveViewElement.src = "data:image/jpeg;base64," + event.data;
-            });
-
-            source.addEventListener('error', function(event) {
-                console.error("Error occurred:", event);
-                source.close();
-            });
-        }
-
-        startLiveView();
-
-        document.getElementById('shootModeForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            var selectedMode = document.getElementById('shootMode').value;
-            fetch('/set_shoot_mode', {
+        function sendCameraFunction(method) {
+            fetch('/camera_control', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({shoot_mode: selectedMode})
+                body: JSON.stringify({method: method})
             })
-            .then(response => response.text())
-            .then(data => alert(data))
+            .then(response => response.json())
+            .then(data => alert(data.message))
             .catch(error => console.error('Error:', error));
-        });
+        }
+        // Function to start Live View
+         // Start Live View when the page loads
+    
+
+        
+
     </script>
 </body>
 </html>
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live View</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    <img id="liveView" src="" alt="Live View" width="800">
-    
-    <script>
-        // JavaScript to update the live view
-        function updateLiveView() {
-            var liveViewElement = document.getElementById('liveView');
-            var source = new EventSource("/stream");
-            
-            source.addEventListener('message', function(event) {
-                liveViewElement.src = "data:image/jpeg;base64," + event.data;
-            });
-
-            source.addEventListener('error', function(event) {
-                console.error("Error occurred:", event);
-                source.close();
-            });
-        }
-
-        updateLiveView();
-    </script>
-</body>
-</html> -->
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Live View</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    </head>
-    <body>
-        <iframe src="{{ liveview_url }}" width="800" alt="Live View"></iframe>
-    </body>
-</html> -->

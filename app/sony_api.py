@@ -18,29 +18,6 @@ class CameraAPI:
         }
         response = requests.post(url, data=json.dumps(payload), headers=headers)
         return response
-    
-    # def start_rec_mode(self):
-    #     response = self._make_request("startRecMode", [])
-    #     if response.status_code == 200:
-    #         response_data = response.json()
-    #         return response_data.get('result', None)
-    #     return None
-
-    # def start_liveview(self):
-    #     response = self._make_request("startLiveview", [])
-    #     if response.status_code == 200:
-    #         response_data = response.json()
-    #         return response_data.get('result', None)
-    #     return None
-
-    # def stop_liveview(self):
-    #     response = self._make_request("stopLiveview", [])
-    #     if response.status_code == 200:
-    #         response_data = response.json()
-    #         return response_data.get('result', None)
-    #     return None
-
-    # Add more API methods here as needed...
 
 # Shoot mode
     def setShootMode(self, mode):
@@ -454,6 +431,7 @@ class CameraAPI:
         response = self._make_request('getAvailableFNumber', [], '1.0')
         if response.status_code == 200:
             response_data = response.json()
+            print('Response data:', response_data)
             return response_data.get('result', None)
         return None
 
