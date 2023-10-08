@@ -161,14 +161,21 @@ def index():
         if location_url:
             endpoint_url = describe_camera(location_url)
             camera_api = CameraAPI(endpoint_url)
+            available_iso_numbers = camera_api.getAvailableIsoSpeedRate()
             available_f_numbers = camera_api.getAvailableFNumber()
-            print('F NUMBER RESPONSE:', available_f_numbers)
+            available_ss_numbers = camera_api.getAvailableShutterSpeed()
+            data = {
+                'available_iso_numbers': available_iso_numbers,
+                'available_f_numbers': available_f_numbers,
+                'available_ss_numbers': available_ss_numbers,
+                # Add more variables as needed
+            }
         else:
             print('Location URL not found.')
     else:
         print('Device not found.')
 
-    return render_template('index.html', available_f_numbers=available_f_numbers)
+    return render_template('index.html', **data)
     # return render_template('index.html', available_f_numbers=available_f_numbers)
 
     # return render_template('index.html')
@@ -190,6 +197,9 @@ def video_feed():
     result_rec_mode = camera_api.startRecMode()
     if result_rec_mode is not None and result_rec_mode[0] == 0:
         print("Started recording mode successfully.")
+        print(camera_api.getAvailableIsoSpeedRate())
+        print(camera_api.getAvailableFNumber())
+        print(camera_api.getAvailableShutterSpeed())
         result = camera_api.startLiveview()
         print('Result from startliveview():', result)
         if result is not None:
@@ -213,105 +223,30 @@ def update_f_number():
         return jsonify({'message': 'F Number updated successfully'}), 200
     else:
         return jsonify({'error': 'Failed to update F Number'}), 500
-
-
-
-
-
-# @app.route('/live_view')
-# def live_view():
-#     global camera_api
-#     response = discover_camera()
-#     if response:
-#         location_url = handle_discovery_response(response)
-#         if location_url:
-#             endpoint_url = describe_camera(location_url)
-#             camera_api = CameraAPI(endpoint_url)
-
-#             result_rec_mode = camera_api.startRecMode()
-#             if result_rec_mode is not None and result_rec_mode[0] == 0:
-#                 print("Started recording mode successfully.")
-#                 result = camera_api.startLiveview()
-#                 print('Result from startliveview():', result)
-#                 if result is not None:
-#                     liveview_url = result[0]
-#                     return Response(fetch_liveview_data(liveview_url), mimetype='text/event-stream')
-#                 else:
-#                     return "Failed to start live view."
-#         else:
-#             return print('Location URL not found.')
-#     else:
-#         return print('Device not found.')
     
-@app.route('/set_shoot_mode', methods=['POST'])
-def set_shoot_mode():
-    selected_mode = request.args.get('shoot_mode')
-    camera_api.setShootMode(selected_mode)
-    return f'Shoot mode set to {selected_mode}'
+@app.route('/update_iso_number', methods=['POST'])
+def update_iso_number():
+    iso_number = request.json.get('iso_number')
 
-@app.route('/camera_function', methods=['POST'])
-def camera_function():
-    data = request.get_json()
-    method = data.get('method')
-    result = camera_api.callCameraFunction(method)
-    return f'Camera function {method} executed successfully.'
+    # Call the API function to set the F Number
+    response = camera_api.setIsoSpeedRate(iso_number)
 
-@app.route('/postview_image_size', methods=['POST'])
-def postview_image_size():
-    size = request.get_json().get('size')
-    camera_api.setPostviewImageSize(size)
-    return f'Postview image size set to {size}.'
+    if response is not None and response[0] == 0:
+        return jsonify({'message': 'ISO Speed Rate updated successfully'}), 200
+    else:
+        return jsonify({'error': 'Failed to update ISO Speed Rate'}), 500
+    
+@app.route('/update_ss_number', methods=['POST'])
+def update_ss_number():
+    ss_number = request.json.get('ss_number')
 
-@app.route('/flash_mode', methods=['POST'])
-def flash_mode():
-    mode = request.get_json().get('mode')
-    camera_api.setFlashMode(mode)
-    return f'Flash mode set to {mode}.'
+    # Call the API function to set the F Number
+    response = camera_api.setShutterSpeed(ss_number)
 
-@app.route('/focus_mode', methods=['POST'])
-def focus_mode():
-    mode = request.get_json().get('mode')
-    camera_api.setFocusMode(mode)
-    return f'Focus mode set to {mode}.'
-
-@app.route('/iso_speed_rate', methods=['POST'])
-def iso_speed_rate():
-    speed = request.get_json().get('speed')
-    camera_api.setIsoSpeedRate(speed)
-    return f'ISO speed rate set to {speed}.'
-
-@app.route('/shutter_speed', methods=['POST'])
-def shutter_speed():
-    speed = request.get_json().get('speed')
-    camera_api.setShutterSpeed(speed)
-    return f'Shutter speed set to {speed}.'
-
-@app.route('/f_number', methods=['POST'])
-def f_number():
-    number = request.get_json().get('number')
-    camera_api.setFNumber(number)
-    return f'F number set to {number}.'
-
-@app.route('/self_timer', methods=['POST'])
-def self_timer():
-    timer = request.get_json().get('timer')
-    camera_api.setSelfTimer(timer)
-    return f'Self timer set to {timer}.'
-
-@app.route('/capture', methods=['POST'])
-def capture():
-    result = camera_api.actTakePicture()
-    return 'Captured successfully.'
-
-@app.route('/live_view_on', methods=['POST'])
-def live_view_on():
-    result = camera_api.startLiveview()
-    return 'Live View turned on successfully.'
-
-@app.route('/live_view_off', methods=['POST'])
-def live_view_off():
-    result = camera_api.stopLiveview()
-    return 'Live View turned off successfully.'
+    if response is not None and response[0] == 0:
+        return jsonify({'message': 'Shutter Speed updated successfully'}), 200
+    else:
+        return jsonify({'error': 'Failed to update Shutter Speed'}), 500
 
 
 if __name__ == '__main__':

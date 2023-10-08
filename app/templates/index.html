@@ -12,48 +12,56 @@
             <img id="liveView" src="/video_feed" alt="Live View" width="800">
         </div>  
         <div>
-            <text>F Number:</text>
-            <input 
-                type="range" 
-                min="{{ available_f_numbers[1][0] if available_f_numbers[1] else 0 }}" 
-                max="{{ available_f_numbers[1][-1] if available_f_numbers[1] else 30 }}" 
-                value="{{ available_f_numbers[0] if available_f_numbers[0] else 5 }}" 
-                step="0.1" 
-                class="slider" 
-                id="fNumberSlider" 
-                oninput="setFNumber(this.value)"
+            <label for="isoDropdown">ISO:</label>
+            <select 
+                id="isoDropdown" 
+                class="dropdown" 
+                onchange="setISO(this.value)"
             >
-        </div>
-        <div class="controls">
-            <select id="shootMode" name="shoot_mode">
-                <option value="still">Still</option>
-                <option value="movie">Movie</option>
-                <option value="audio">Audio</option>
-                <option value="intervalstill">Interval Still</option>
-                <option value="looprec">Loop Recording</option>
+                {% for iso_option in available_iso_numbers[1] %}
+                    <option 
+                        value="{{ iso_option }}" 
+                        {% if available_iso_numbers[0] == iso_option %}selected{% endif %}
+                    >
+                        {{ iso_option }}
+                    </option>
+                {% endfor %}
             </select>
-            <button type="submit" onclick="setShootMode()">Set Shoot Mode</button>
-
-            <button onclick="sendCameraFunction('startRecMode')">Start Rec Mode</button>
-            <button onclick="sendCameraFunction('stopRecMode')">Stop Rec Mode</button>
-            <button onclick="sendPostviewImageSize('large')">Set Postview Image Size</button>
-            <button onclick="sendPostviewImageSize('small')">Set Postview Image Size (Small)</button>
-            <button onclick="sendFlashMode('auto')">Set Flash Mode (Auto)</button>
-            <button onclick="sendFlashMode('off')">Set Flash Mode (Off)</button>
-            <button onclick="sendFocusMode('auto')">Set Focus Mode (Auto)</button>
-            <button onclick="sendFocusMode('manual')">Set Focus Mode (Manual)</button>
-            <button onclick="sendIsoSpeedRate(800)">Set ISO Speed Rate (800)</button>
-            <button onclick="sendIsoSpeedRate(1600)">Set ISO Speed Rate (1600)</button>
-            <button onclick="sendShutterSpeed('1/60')">Set Shutter Speed (1/60)</button>
-            <button onclick="sendShutterSpeed('1/125')">Set Shutter Speed (1/125)</button>
-            <button onclick="sendFNumber('5.6')">Set F Number (5.6)</button>
-            <button onclick="sendFNumber('8')">Set F Number (8)</button>
-            <button onclick="sendSelfTimer('2s')">Set Self Timer (2s)</button>
-            <button onclick="sendSelfTimer('5s')">Set Self Timer (5s)</button>
-            <button onclick="capture()">Capture</button>
-            <button onclick="liveViewOn()">Live View On</button>
-            <button onclick="liveViewOff()">Live View Off</button>
         </div>
+        <div>
+            <label for="fNumberDropdown">F Number:</label>
+            <select 
+                id="fNumberDropdown" 
+                class="dropdown" 
+                onchange="setFNumber(this.value)"
+            >
+                {% for f_number_option in available_f_numbers[1] %}
+                    <option 
+                        value="{{ f_number_option }}" 
+                        {% if available_f_numbers[0] == f_number_option %}selected{% endif %}
+                    >
+                        {{ f_number_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="ssNumberDropdown">Shutter Speed:</label>
+            <select 
+                id="ssNumberDropdown" 
+                class="dropdown" 
+                onchange="setShutterSpeed(this.value)"
+            >
+                {% for ss_number_option in available_ss_numbers[1] %}
+                    <option 
+                        value="{{ ss_number_option }}" 
+                        {% if available_ss_numbers[0] == ss_number_option %}selected{% endif %}
+                    >
+                        {{ ss_number_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>        
     </div>
 
     <script>
@@ -87,7 +95,45 @@
                 }
             })
             .catch(error => console.error('Error:', error));
-        }          
+        }    
+
+        function setISO(value) {
+        // Make a request to set the ISO
+            fetch('/update_iso_number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ iso_number: value })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('ISO Speed Rate updated successfully');
+                } else {
+                    console.error('Error updating ISO Speed rate:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }  
+
+        function setShutterSpeed(value) {
+        // Make a request to set the Shutter Speed
+            fetch('/update_ss_number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ss_number: value })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Shutter Speed updated successfully');
+                } else {
+                    console.error('Error updating Shutter Speed:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }        
 
     </script>
 </body>
