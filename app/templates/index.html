@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live View</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Sony Camera Remote</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/halfmoon.min.css') }}">
 </head>
 <body>
     <div class="container">
@@ -63,6 +63,171 @@
             </select>
         </div>        
     </div>
+
+    <script>
+        function sendCameraFunction(method) {
+            fetch('/camera_control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({method: method})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+        }
+   
+        function setFNumber(value) {
+        // Make a request to set the F number
+            fetch('/update_f_number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ f_number: value })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('F Number updated successfully');
+                } else {
+                    console.error('Error updating F Number:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }    
+
+        function setISO(value) {
+        // Make a request to set the ISO
+            fetch('/update_iso_number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ iso_number: value })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('ISO Speed Rate updated successfully');
+                } else {
+                    console.error('Error updating ISO Speed rate:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }  
+
+        function setShutterSpeed(value) {
+        // Make a request to set the Shutter Speed
+            fetch('/update_ss_number', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ss_number: value })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Shutter Speed updated successfully');
+                } else {
+                    console.error('Error updating Shutter Speed:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }        
+
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sony Camera Remote</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/halfmoon.min.css') }}">
+</head>
+<body class="ps-md-sbwidth">
+  <!-- Sidebar -->
+  <nav class="sidebar offcanvas-start offcanvas-md" tabindex="-1" id="sidebar-example">
+    <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
+      <a class="sidebar-brand" href="#">
+        SCR
+      </a>
+      <button type="button" class="btn-close d-md-none" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#sidebar-example"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="mt-2 mb-3">
+        <input type="text" class="form-control" placeholder="Search">
+      </div>
+      <ul class="sidebar-nav">
+        <div>
+            <label class="form-label" for="isoDropdown">ISO:</label>
+            <select 
+                class="form-select"
+                id="isoDropdown" 
+                class="dropdown" 
+                onchange="setISO(this.value)"
+            >
+                {% for iso_option in available_iso_numbers[1] %}
+                    <option 
+                        value="{{ iso_option }}" 
+                        {% if available_iso_numbers[0] == iso_option %}selected{% endif %}
+                    >
+                        {{ iso_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="fNumberDropdown">F Number:</label>
+            <select 
+                class="form-select"
+                id="fNumberDropdown" 
+                class="dropdown" 
+                onchange="setFNumber(this.value)"
+            >
+                {% for f_number_option in available_f_numbers[1] %}
+                    <option 
+                        value="{{ f_number_option }}" 
+                        {% if available_f_numbers[0] == f_number_option %}selected{% endif %}
+                    >
+                        {{ f_number_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="ssNumberDropdown">Shutter Speed:</label>
+            <select 
+                class="form-select"
+                id="ssNumberDropdown" 
+                class="dropdown" 
+                onchange="setShutterSpeed(this.value)"
+            >
+                {% for ss_number_option in available_ss_numbers[1] %}
+                    <option 
+                        value="{{ ss_number_option }}" 
+                        {% if available_ss_numbers[0] == ss_number_option %}selected{% endif %}
+                    >
+                        {{ ss_number_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>  
+      </ul>
+    </div>
+  </nav>
+  <!-- Sidebar toggle -->
+  <button type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar-example" class="btn btn-secondary d-md-none">
+    <i class="fa-light fa-sidebar me-1"></i> Sidebar
+  </button>
+
+  <div class="container">
+    <div id="video-container">
+        <img id="liveView" src="/video_feed" alt="Live View" width="1100">
+    </div>     
+    </div> 
 
     <script>
         function sendCameraFunction(method) {

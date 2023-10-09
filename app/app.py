@@ -197,9 +197,9 @@ def video_feed():
     result_rec_mode = camera_api.startRecMode()
     if result_rec_mode is not None and result_rec_mode[0] == 0:
         print("Started recording mode successfully.")
-        print(camera_api.getAvailableIsoSpeedRate())
-        print(camera_api.getAvailableFNumber())
-        print(camera_api.getAvailableShutterSpeed())
+        # print(camera_api.getAvailableIsoSpeedRate())
+        # print(camera_api.getAvailableFNumber())
+        # print(camera_api.getAvailableShutterSpeed())
         result = camera_api.startLiveview()
         print('Result from startliveview():', result)
         if result is not None:
@@ -218,6 +218,7 @@ def update_f_number():
 
     # Call the API function to set the F Number
     response = camera_api.setFNumber(f_number)
+    camera_api.actHalfPressShutter()
 
     if response is not None and response[0] == 0:
         return jsonify({'message': 'F Number updated successfully'}), 200
@@ -230,6 +231,7 @@ def update_iso_number():
 
     # Call the API function to set the F Number
     response = camera_api.setIsoSpeedRate(iso_number)
+    camera_api.actHalfPressShutter()
 
     if response is not None and response[0] == 0:
         return jsonify({'message': 'ISO Speed Rate updated successfully'}), 200
@@ -242,6 +244,7 @@ def update_ss_number():
 
     # Call the API function to set the F Number
     response = camera_api.setShutterSpeed(ss_number)
+    camera_api.actHalfPressShutter()
 
     if response is not None and response[0] == 0:
         return jsonify({'message': 'Shutter Speed updated successfully'}), 200
