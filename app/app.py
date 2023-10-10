@@ -178,14 +178,6 @@ def index():
     return render_template('index.html', **data)
     # return render_template('index.html', available_f_numbers=available_f_numbers)
 
-    # return render_template('index.html')
-
-    # # initCamera()
-    # available_f_numbers = camera_api.getAvailableFNumber()  
-    # print('Curr F number:', available_f_numbers[0])
-    # print('F number range:', available_f_numbers[1])
-    # return render_template('index.html', available_f_numbers=available_f_numbers)
-
 @app.route('/video_feed')
 def video_feed():
     # response = discover_camera()
@@ -218,7 +210,6 @@ def update_f_number():
 
     # Call the API function to set the F Number
     response = camera_api.setFNumber(f_number)
-    camera_api.actHalfPressShutter()
 
     if response is not None and response[0] == 0:
         return jsonify({'message': 'F Number updated successfully'}), 200
@@ -229,9 +220,8 @@ def update_f_number():
 def update_iso_number():
     iso_number = request.json.get('iso_number')
 
-    # Call the API function to set the F Number
+    # Call the API function to set the ISO Speed Rate
     response = camera_api.setIsoSpeedRate(iso_number)
-    camera_api.actHalfPressShutter()
 
     if response is not None and response[0] == 0:
         return jsonify({'message': 'ISO Speed Rate updated successfully'}), 200
@@ -242,14 +232,37 @@ def update_iso_number():
 def update_ss_number():
     ss_number = request.json.get('ss_number')
 
-    # Call the API function to set the F Number
+    # Call the API function to set the Shutter Speed
     response = camera_api.setShutterSpeed(ss_number)
-    camera_api.actHalfPressShutter()
 
     if response is not None and response[0] == 0:
         return jsonify({'message': 'Shutter Speed updated successfully'}), 200
     else:
         return jsonify({'error': 'Failed to update Shutter Speed'}), 500
+    
+@app.route('/half_press_shutter', methods=['POST'])
+def half_press_shutter():
+    # Call the API function to focus on half press shutter
+    response = camera_api.actHalfPressShutter()
+
+    if response is not None:
+        return jsonify({'message': 'Half press shutter focused successfully'}), 200
+    else:
+        return jsonify({'error': 'Failed to half press shutter focus'}), 500
+
+@app.route('/take_picture', methods=['POST'])
+def take_picture():
+    # Call the API function to focus on half press shutter
+    response = camera_api.actTakePicture()
+    print('take pic response[0][0]:', response[0][0])
+    picture_response = requests.get(response[0][0])
+    with open("downloaded_picture.jpg", "wb") as file:
+        file.write(picture_response.content)
+
+    if response is not None:
+        return jsonify({'message': 'Picture taken successfully'}), 200
+    else:
+        return jsonify({'error': 'Failed to take picture'}), 500
 
 
 if __name__ == '__main__':

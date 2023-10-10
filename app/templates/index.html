@@ -214,8 +214,28 @@
                     </option>
                 {% endfor %}
             </select>
-        </div>  
+        </div>   
       </ul>
+      <div>
+        <label class="form-label" for="halfPressShutter">Half-press shutter:</label>
+        <button 
+            class="btn btn-primary"
+            id="halfPressShutter" 
+            onclick="halfPressShutter()"
+        >
+            Focus
+        </button>
+      </div> 
+      <div>
+        <label class="form-label" for="actTakePicture">Full-press shutter:</label>
+        <button 
+            class="btn btn-primary"
+            id="actTakePicutre" 
+            onclick="actTakePicture()"
+        >
+            Take Picture
+        </button>
+      </div> 
     </div>
   </nav>
   <!-- Sidebar toggle -->
@@ -298,7 +318,45 @@
                 }
             })
             .catch(error => console.error('Error:', error));
-        }        
+        }   
+        
+        function halfPressShutter() {
+        // Make a request to half press shutter focus
+            fetch('/half_press_shutter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Half press shutter focused successfully');
+                } else {
+                    console.error('Failed to half press shutter focus:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }  
+
+        function actTakePicture() {
+        // Make a request to take picture
+            fetch('/take_picture', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Picture taken successfully');
+                } else {
+                    console.error('Failed to take picture:', response.statusText);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
 
     </script>
 </body>
