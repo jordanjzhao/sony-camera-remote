@@ -1,0 +1,358 @@
+############################################
+# Date: Aug. 5, 2024
+# TestSequentialStackTIF v1.0
+#
+# Script to stack x sequential .tif images
+# as part of a large format multi-row panorama
+# for testing purposes
+# 
+# Author: Jordan Zhao
+#
+# Instructions:
+# 1. Create and place all your .tif images in the 
+#    'lens_corrected' folder on your Desktop
+# 2. Update stack batch size (line 19) of batch_images.py
+#    accordingly to the number of images you plan to stack
+# 3. Execute batch_images.py via terminal (3.1)
+# 3.1 - Download batch_images.py
+#     - Place batch_images.py on desktop
+#     - Open Terminal application
+#     - Execute command "cd Desktop"
+#     - Execute command "python3 batch_images.py"
+#     - If required, execute "chmod -x batch_images.py" 
+#       to allow execute permissions
+# 4. Open siril_commands.txt, select and copy all commands
+#    and paste directly into the stack_seq_images.ssf under
+#    heading marked "# Paste siril commands below"
+#    (Personal example left for viewing)
+# 5. Stacked results will be finalized in the stacked_results
+#    directory for further processing
+############################################
+
+requires 1.2.0
+
+# Paste siril commands below
+cd /Users/jordanzhao/Desktop/process/batch_001
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_001
+cd /Users/jordanzhao/Desktop/processed_batches/batch_001
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_001_stacked
+cd /Users/jordanzhao/Desktop/process/batch_002
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_002
+cd /Users/jordanzhao/Desktop/processed_batches/batch_002
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_002_stacked
+cd /Users/jordanzhao/Desktop/process/batch_003
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_003
+cd /Users/jordanzhao/Desktop/processed_batches/batch_003
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_003_stacked
+cd /Users/jordanzhao/Desktop/process/batch_004
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_004
+cd /Users/jordanzhao/Desktop/processed_batches/batch_004
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_004_stacked
+cd /Users/jordanzhao/Desktop/process/batch_005
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_005
+cd /Users/jordanzhao/Desktop/processed_batches/batch_005
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_005_stacked
+cd /Users/jordanzhao/Desktop/process/batch_006
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_006
+cd /Users/jordanzhao/Desktop/processed_batches/batch_006
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_006_stacked
+cd /Users/jordanzhao/Desktop/process/batch_007
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_007
+cd /Users/jordanzhao/Desktop/processed_batches/batch_007
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_007_stacked
+cd /Users/jordanzhao/Desktop/process/batch_008
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_008
+cd /Users/jordanzhao/Desktop/processed_batches/batch_008
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_008_stacked
+cd /Users/jordanzhao/Desktop/process/batch_009
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_009
+cd /Users/jordanzhao/Desktop/processed_batches/batch_009
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_009_stacked
+cd /Users/jordanzhao/Desktop/process/batch_010
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_010
+cd /Users/jordanzhao/Desktop/processed_batches/batch_010
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_010_stacked
+cd /Users/jordanzhao/Desktop/process/batch_011
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_011
+cd /Users/jordanzhao/Desktop/processed_batches/batch_011
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_011_stacked
+cd /Users/jordanzhao/Desktop/process/batch_012
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_012
+cd /Users/jordanzhao/Desktop/processed_batches/batch_012
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_012_stacked
+cd /Users/jordanzhao/Desktop/process/batch_013
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_013
+cd /Users/jordanzhao/Desktop/processed_batches/batch_013
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_013_stacked
+cd /Users/jordanzhao/Desktop/process/batch_014
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_014
+cd /Users/jordanzhao/Desktop/processed_batches/batch_014
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_014_stacked
+cd /Users/jordanzhao/Desktop/process/batch_015
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_015
+cd /Users/jordanzhao/Desktop/processed_batches/batch_015
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_015_stacked
+cd /Users/jordanzhao/Desktop/process/batch_016
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_016
+cd /Users/jordanzhao/Desktop/processed_batches/batch_016
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_016_stacked
+cd /Users/jordanzhao/Desktop/process/batch_017
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_017
+cd /Users/jordanzhao/Desktop/processed_batches/batch_017
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_017_stacked
+cd /Users/jordanzhao/Desktop/process/batch_018
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_018
+cd /Users/jordanzhao/Desktop/processed_batches/batch_018
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_018_stacked
+cd /Users/jordanzhao/Desktop/process/batch_019
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_019
+cd /Users/jordanzhao/Desktop/processed_batches/batch_019
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_019_stacked
+cd /Users/jordanzhao/Desktop/process/batch_020
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_020
+cd /Users/jordanzhao/Desktop/processed_batches/batch_020
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_020_stacked
+cd /Users/jordanzhao/Desktop/process/batch_021
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_021
+cd /Users/jordanzhao/Desktop/processed_batches/batch_021
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_021_stacked
+cd /Users/jordanzhao/Desktop/process/batch_022
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_022
+cd /Users/jordanzhao/Desktop/processed_batches/batch_022
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_022_stacked
+cd /Users/jordanzhao/Desktop/process/batch_023
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_023
+cd /Users/jordanzhao/Desktop/processed_batches/batch_023
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_023_stacked
+cd /Users/jordanzhao/Desktop/process/batch_024
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_024
+cd /Users/jordanzhao/Desktop/processed_batches/batch_024
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_024_stacked
+cd /Users/jordanzhao/Desktop/process/batch_025
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_025
+cd /Users/jordanzhao/Desktop/processed_batches/batch_025
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_025_stacked
+cd /Users/jordanzhao/Desktop/process/batch_026
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_026
+cd /Users/jordanzhao/Desktop/processed_batches/batch_026
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_026_stacked
+cd /Users/jordanzhao/Desktop/process/batch_027
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_027
+cd /Users/jordanzhao/Desktop/processed_batches/batch_027
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_027_stacked
+cd /Users/jordanzhao/Desktop/process/batch_028
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_028
+cd /Users/jordanzhao/Desktop/processed_batches/batch_028
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_028_stacked
+cd /Users/jordanzhao/Desktop/process/batch_029
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_029
+cd /Users/jordanzhao/Desktop/processed_batches/batch_029
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_029_stacked
+cd /Users/jordanzhao/Desktop/process/batch_030
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_030
+cd /Users/jordanzhao/Desktop/processed_batches/batch_030
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_030_stacked
+cd /Users/jordanzhao/Desktop/process/batch_031
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_031
+cd /Users/jordanzhao/Desktop/processed_batches/batch_031
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_031_stacked
+cd /Users/jordanzhao/Desktop/process/batch_032
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_032
+cd /Users/jordanzhao/Desktop/processed_batches/batch_032
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_032_stacked
+cd /Users/jordanzhao/Desktop/process/batch_033
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_033
+cd /Users/jordanzhao/Desktop/processed_batches/batch_033
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_033_stacked
+cd /Users/jordanzhao/Desktop/process/batch_034
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_034
+cd /Users/jordanzhao/Desktop/processed_batches/batch_034
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_034_stacked
+cd /Users/jordanzhao/Desktop/process/batch_035
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_035
+cd /Users/jordanzhao/Desktop/processed_batches/batch_035
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_035_stacked
+cd /Users/jordanzhao/Desktop/process/batch_036
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_036
+cd /Users/jordanzhao/Desktop/processed_batches/batch_036
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_036_stacked
+cd /Users/jordanzhao/Desktop/process/batch_037
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_037
+cd /Users/jordanzhao/Desktop/processed_batches/batch_037
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_037_stacked
+cd /Users/jordanzhao/Desktop/process/batch_038
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_038
+cd /Users/jordanzhao/Desktop/processed_batches/batch_038
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_038_stacked
+cd /Users/jordanzhao/Desktop/process/batch_039
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_039
+cd /Users/jordanzhao/Desktop/processed_batches/batch_039
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_039_stacked
+cd /Users/jordanzhao/Desktop/process/batch_040
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_040
+cd /Users/jordanzhao/Desktop/processed_batches/batch_040
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_040_stacked
+cd /Users/jordanzhao/Desktop/process/batch_041
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_041
+cd /Users/jordanzhao/Desktop/processed_batches/batch_041
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_041_stacked
+cd /Users/jordanzhao/Desktop/process/batch_042
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_042
+cd /Users/jordanzhao/Desktop/processed_batches/batch_042
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_042_stacked
+cd /Users/jordanzhao/Desktop/process/batch_043
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_043
+cd /Users/jordanzhao/Desktop/processed_batches/batch_043
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_043_stacked
+cd /Users/jordanzhao/Desktop/process/batch_044
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_044
+cd /Users/jordanzhao/Desktop/processed_batches/batch_044
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_044_stacked
+cd /Users/jordanzhao/Desktop/process/batch_045
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_045
+cd /Users/jordanzhao/Desktop/processed_batches/batch_045
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_045_stacked
+cd /Users/jordanzhao/Desktop/process/batch_046
+cd lights
+convert light -out=/Users/jordanzhao/Desktop/processed_batches/batch_046
+cd /Users/jordanzhao/Desktop/processed_batches/batch_046
+calibrate light -debayer
+register pp_light
+stack r_pp_light rej 3 3 -norm=addscale -output_norm -out=/Users/jordanzhao/Desktop/stacked_results/batch_046_stacked
+
+close
